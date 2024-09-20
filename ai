@@ -1,0 +1,119 @@
+from textblob import TextBlob
+from datetime import datetime
+import random
+import json
+
+# Optional: Load pre-trained transformers model if you want to add NLP features (Hugging Face Transformers)
+from transformers import pipeline
+
+# Sentiment analysis pipeline (using a pre-trained model from transformers)
+sentiment_pipeline = pipeline("sentiment-analysis")
+
+# Sample affirmations and relaxation techniques
+affirmations = [
+    "You are capable of amazing things!",
+    "Take it one step at a time. You are doing great.",
+    "You are strong, even on your bad days.",
+    "Don't worry everthing will gonthe way you want.",
+    "Breathe in peace, breathe out stress."
+]
+
+relaxation_techniques = [
+    "Try 5 minutes of deep breathing. Inhale for 4, hold for 4, exhale for 4.",
+    "Take a moment to meditate and clear your thoughts.",
+    "Take a quick walk and enjoy some fresh air.",
+    "Go have a talk with your family.",
+    "Write down three things you are grateful for today."
+]
+def mood_check_in():
+    print("How are you feeling today?")
+    mood_input = input("> ")
+    
+    # Analyze the sentiment of the input
+    mood_analysis = TextBlob(mood_input).sentiment
+    polarity = mood_analysis.polarity  # A value between -1 (negative) to 1 (positive)
+
+    # Log mood with timestamp
+    log_mood(mood_input, polarity)
+    
+    if polarity > 0:
+        print("It sounds like you're feeling positive today!")
+    elif polarity < 0:
+        print("I'm sorry you're feeling down. Let's try something uplifting.")
+    else:
+        print("It seems like you're feeling neutral today.")
+    
+    # Offer an affirmation or relaxation technique
+    suggest_activity(polarity)
+
+def log_mood(mood_input, polarity):
+    log_entry = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "mood": mood_input,
+        "polarity": polarity
+    }
+    
+    # Append to mood log file
+    with open("mood_log.json", "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+
+def suggest_activity(polarity):
+    if polarity >= 0:
+        print(random.choice(affirmations))
+    else:
+        print(random.choice(relaxation_techniques))
+def journaling():
+    print("Would you like to journal your thoughts today? (yes/no)")
+    response = input("> ").lower()
+    
+    if response == "yes":
+        print("Great! Start typing your journal entry:")
+        journal_entry = input("> ")
+        log_journal_entry(journal_entry)
+        print("Thank you for sharing. I've saved your entry.")
+    else:
+        print("That's okay. If you change your mind, let me know!")
+    
+def log_journal_entry(journal_entry):
+    log_entry = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "entry": journal_entry
+    }
+    
+    # Append to journal log file
+    with open("journal_log.json", "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+def mindfulness_exercise():
+    print("Would you like to try a mindfulness exercise? (yes/no)")
+    response = input("> ").lower()
+    
+    if response == "yes":
+        print(random.choice(relaxation_techniques))
+    else:
+        print("No worries. Let me know if you need help relaxing later!")
+def main():
+    print("Hello! I'm your mental wellness companion. Let's check in and see how you're feeling.")
+    
+    while True:
+        print("\nWhat would you like to do today?")
+        print("1. Mood check-in")
+        print("2. Journal")
+        print("3. Mindfulness exercise")
+        print("4. Exit")
+        
+        choice = input("> ")
+        
+        if choice == "1":
+            mood_check_in()
+        elif choice == "2":
+            journaling()
+        elif choice == "3":
+            mindfulness_exercise()
+        elif choice == "4":
+            print("Take care! I'll be here if you need me.")
+            break
+        else:
+            print("Sorry, I didn't understand that. Please choose again.")
+            
+if __name__ == "__main__":
+    main()
